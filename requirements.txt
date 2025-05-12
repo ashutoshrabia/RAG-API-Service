@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+gitpython
+sentence-transformers
+faiss-cpu
+langchain
+python-dotenv
+openai
+httpx
+transformers
+torch
+Pillow
+PyPDF2

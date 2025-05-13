@@ -128,12 +128,14 @@ async def ingest_upload(file: UploadFile = File(...)):
         else:
             raise HTTPException(status_code=400, detail="Unsupported file type")
 
-        # Load existing index and documents, or create a new one
+               # Determine embedding dimension
+        dimension = embedding.shape[1]
+
+        # Load existing index and documents, or start from scratch
         try:
             index = get_faiss_index()
             documents = load_documents()
-        except:
-            dimension = embedding.shape[1]
+        except FileNotFoundError:
             index = faiss.IndexFlatL2(dimension)
             documents = []
 
@@ -145,7 +147,7 @@ async def ingest_upload(file: UploadFile = File(...)):
             existing_embeddings = index.reconstruct_n(0, index.ntotal)
             embeddings = np.vstack([existing_embeddings, embeddings])
 
-        # Recreate the index with all embeddings
+        # (Re-)build the FAISS index with all embeddings
         index = faiss.IndexFlatL2(dimension)
         index.add(embeddings)
 

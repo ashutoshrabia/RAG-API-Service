@@ -4,7 +4,6 @@ import pickle
 import numpy as np
 import os
 
-# Define paths for storing the FAISS index and documents
 INDEX_PATH = "tmp/vector_store.index"
 DOCUMENTS_PATH = "tmp/documents.pkl"
 
@@ -16,13 +15,12 @@ def save_faiss_index(index, documents):
         index: FAISS index containing document embeddings.
         documents: List of document metadata (e.g., [{"source": "path", "content": "text"}]).
     """
-    # Ensure the tmp directory exists
     os.makedirs(os.path.dirname(INDEX_PATH), exist_ok=True)
     
-    # Save the FAISS index
+    
     faiss.write_index(index, INDEX_PATH)
     
-    # Save the documents metadata
+
     with open(DOCUMENTS_PATH, "wb") as f:
         pickle.dump(documents, f)
 

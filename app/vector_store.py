@@ -1,4 +1,4 @@
-# app/vector_store.py
+
 import faiss
 import pickle
 import numpy as np

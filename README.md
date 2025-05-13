@@ -68,11 +68,7 @@ A FastAPI-based service for embedding and querying documentation (including code
 3. **Swagger UI**
    http://localhost:2000/docs
 
-## Running Locally
- From project root
- ```bash
-    uvicorn app.main:app --host 0.0.0.0 --port 2000 --reload
-```
+
 ## Ingest Endpoints
 1. **Ingest Git Repo**
    ```swift

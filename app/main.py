@@ -8,7 +8,6 @@ from .query import router as query_router
 import sys
 
 load_dotenv()
-print("Loaded PERPLEXITY_API_KEY:", os.getenv("PERPLEXITY_API_KEY"))
 
 app = FastAPI(
     title="RAG API Service",

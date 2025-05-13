@@ -13,13 +13,11 @@ from .vector_store import save_faiss_index, get_faiss_index, load_documents
 
 router = APIRouter()
 
-# Initialize CLIP model and processor (loaded lazily to avoid Render startup issues)
 def get_clip_model():
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to("cpu")
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     return clip_model, clip_processor
 
-# Directory to store cloned repos
 BASE_DIR = Path("tmp/gs_docs")
 
 def clone_repo(repo_url: str, base_dir: Path) -> Path:
@@ -60,13 +58,12 @@ async def ingest_git(request: dict):
     if not repo_url:
         raise HTTPException(status_code=400, detail="Repository URL is required")
 
-    # Load CLIP model
+
     clip_model, clip_processor = get_clip_model()
 
-    # Clone the repository
     repo_path = clone_repo(repo_url, BASE_DIR)
 
-    # Process all files in the repository
+    
     documents = []
     embeddings = []
     for file_path in repo_path.rglob("*"):
@@ -90,22 +87,18 @@ async def ingest_git(request: dict):
     if not documents:
         raise HTTPException(status_code=400, detail="No valid documents found in the repository")
 
-    # Convert embeddings to a numpy array
     embeddings = np.vstack(embeddings)
 
-    # Create or update FAISS index
     dimension = embeddings.shape[1]
     index = faiss.IndexFlatL2(dimension)
     index.add(embeddings)
 
-    # Save the index and documents
     save_faiss_index(index, documents)
 
     return {"status": "Ingestion complete", "documents": len(documents)}
 
 @router.post("/upload")
 async def ingest_upload(file: UploadFile = File(...)):
-    # Save the uploaded file
     upload_dir = BASE_DIR / "uploads"
     upload_dir.mkdir(parents=True, exist_ok=True)
     file_path = upload_dir / file.filename
@@ -113,10 +106,9 @@ async def ingest_upload(file: UploadFile = File(...)):
     with file_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Load CLIP model
+  
     clip_model, clip_processor = get_clip_model()
 
-    # Process the file based on its type
     file_str = str(file_path)
     try:
         if file_str.endswith((".txt", ".md")):
@@ -128,10 +120,8 @@ async def ingest_upload(file: UploadFile = File(...)):
         else:
             raise HTTPException(status_code=400, detail="Unsupported file type")
 
-               # Determine embedding dimension
         dimension = embedding.shape[1]
 
-        # Load existing index and documents, or start from scratch
         try:
             index = get_faiss_index()
             documents = load_documents()
@@ -139,7 +129,6 @@ async def ingest_upload(file: UploadFile = File(...)):
             index = faiss.IndexFlatL2(dimension)
             documents = []
 
-        # Add the new document and embedding
         documents.append({"source": file_str, "content": content})
         embeddings = np.vstack([embedding])
 
@@ -147,11 +136,9 @@ async def ingest_upload(file: UploadFile = File(...)):
             existing_embeddings = index.reconstruct_n(0, index.ntotal)
             embeddings = np.vstack([existing_embeddings, embeddings])
 
-        # (Re-)build the FAISS index with all embeddings
         index = faiss.IndexFlatL2(dimension)
         index.add(embeddings)
 
-        # Save the updated index and documents
         save_faiss_index(index, documents)
 
         return {"status": "Ingestion complete", "document": file_str}

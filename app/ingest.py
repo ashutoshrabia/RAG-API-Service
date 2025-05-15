@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter, HTTPException, UploadFile, File
 import os
-import shutil
+import shutil, stat
 import git
 from pathlib import Path
 import faiss
@@ -20,11 +20,15 @@ def get_clip_model():
 
 BASE_DIR = Path("tmp/gs_docs")
 
+def on_rm_error(func, path, exc_info):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+    
 def clone_repo(repo_url: str, base_dir: Path) -> Path:
-    repo_name = repo_url.split("/")[-1].replace(".git", "")
+    repo_name = repo_url.rstrip("/").split("/")[-1].replace(".git", "")
     repo_path = base_dir / repo_name
     if repo_path.exists():
-        shutil.rmtree(repo_path)
+        shutil.rmtree(repo_path, onerror=on_rm_error)
     repo_path.mkdir(parents=True, exist_ok=True)
     git.Repo.clone_from(repo_url, repo_path)
     return repo_path

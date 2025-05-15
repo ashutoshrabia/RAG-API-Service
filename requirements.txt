@@ -11,5 +11,4 @@ transformers
 torch
 Pillow
 PyPDF2
-shutil 
-stat
+

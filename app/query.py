@@ -30,13 +30,7 @@ Answer:"""
 
 @router.post("/", summary="Query RAG", response_model=dict)
 async def query_rag(body: QueryRequest):
-    """
-    POST /query/  
-    {
-      "question": "Your question here",
-      "top_k": 3
-    }
-    """
+    
     question = body.question
     top_k   = body.top_k
 

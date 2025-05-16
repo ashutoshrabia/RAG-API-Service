@@ -130,6 +130,8 @@ async def ingest_upload(file: UploadFile = File(...)):
             content, emb = process_pdf_file(file_str, clip_model, clip_processor)
         else:
             raise HTTPException(status_code=400, detail="Unsupported file type")
+        # emb may be shape (1, D) or (D,), so flatten/squeeze to (D,)
+        emb = np.asarray(emb).reshape(-1)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing file: {e}")
 
@@ -137,15 +139,17 @@ async def ingest_upload(file: UploadFile = File(...)):
     try:
         index     = get_faiss_index()
         documents = load_documents()
-        existing = index.reconstruct_n(0, index.ntotal)
-        matrix   = np.vstack([existing, emb])
-        index    = faiss.IndexFlatL2(matrix.shape[1])
+        existing  = index.reconstruct_n(0, index.ntotal)
+        # combine existing (N, D) with new emb (D,)
+        matrix    = np.vstack([existing, emb])
+        index     = faiss.IndexFlatL2(matrix.shape[1])
         index.add(matrix)
         documents.append({"source": file_str, "content": content})
     except FileNotFoundError:
-        index     = faiss.IndexFlatL2(emb.shape[1])
+        # first upload: create index of dimension D
+        index     = faiss.IndexFlatL2(emb.shape[0])
         index.add(np.expand_dims(emb, 0))
         documents = [{"source": file_str, "content": content}]
-
+ 
     save_faiss_index(index, documents)
     return {"status": "upload ingestion complete", "document": file_str}

@@ -30,11 +30,14 @@ def process_text_file(file_path: str, clip_model, clip_processor):
     embedding = clip_model.get_text_features(**inputs).detach().numpy()
     return content, embedding
 
-def process_image_file(file_path: str, clip_model, clip_processor):
-    image = Image.open(file_path).convert("RGB")
-    inputs = clip_processor(images=image, return_tensors="pt")
-    embedding = clip_model.get_image_features(**inputs).detach().numpy()
-    return f"Image: {file_path}", embedding
+def process_image_file(path, clip_model, clip_processor):
+    image = Image.open(path).convert("RGB")
+    labels = ["a photo of a dog", "a photo of a cat", "a photo of a car"]
+    inputs = clip_processor(text=labels, images=image, return_tensors="pt", padding=True)
+    outputs = clip_model(**inputs)
+    probs = outputs.logits_per_image.softmax(dim=1)[0]
+    best = labels[probs.argmax()]
+    return best, outputs.image_embeds.detach().numpy()
 
 def process_pdf_file(file_path: str, clip_model, clip_processor):
     with open(file_path, "rb") as f:

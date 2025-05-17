@@ -52,7 +52,7 @@ A FastAPI-based service for embedding and querying documentation (including code
 ## Running Locally
  From project root
  ```bash
-    uvicorn app.main:app --host 0.0.0.0 --port 2000 --reload
+    uvicorn app.main:app --host 0.0.0.0 --port 2000
 ```
 ## Docker
 1. **Build**
@@ -89,7 +89,7 @@ Response
    POST /ingest/upload
    Content-Type: multipart/form-data
 
-   file: <upload your .txt | .md | .pdf | .png | .jpg>
+   file: <upload your .txt | .md | .pdf | .png | .jpg | .jpeg>
 Response
    ```json
    { "status": "Ingestion complete", "document": "<path>" }

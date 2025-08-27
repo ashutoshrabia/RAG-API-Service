@@ -4,7 +4,7 @@ import os
 import httpx
 import numpy as np
 from transformers import CLIPProcessor, CLIPModel
-from .vector_store import get_faiss_index, search_index
+from vector_store import get_faiss_index, search_index
 
 router = APIRouter()
 

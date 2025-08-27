@@ -55,7 +55,7 @@ def list_routes():
 if __name__ == "__main__":
     import uvicorn
     try:
-        uvicorn.run("app.main:app", host="0.0.0.0", port=2000, reload=False)
+        uvicorn.run(app, host="0.0.0.0", port=2000, reload=False)
     except KeyboardInterrupt:
         print("Server stopped by user (Ctrl+C). Shutting down gracefully...")
         sys.exit(0)

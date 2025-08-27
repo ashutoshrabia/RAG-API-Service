@@ -7,7 +7,7 @@ import numpy as np
 from transformers import CLIPProcessor, CLIPModel, BlipProcessor, BlipForConditionalGeneration
 from PIL import Image
 import PyPDF2
-from .vector_store import save_faiss_index, get_faiss_index, load_documents
+from vector_store import save_faiss_index, get_faiss_index, load_documents
 
 router = APIRouter()
 BASE_DIR = Path("tmp/gs_docs")

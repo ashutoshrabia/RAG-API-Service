@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
-from .ingest import router as ingest_router
-from .query import router as query_router
+from ingest import router as ingest_router
+from query import router as query_router
 import sys
 
 load_dotenv()
